@@ -36,6 +36,11 @@ object Tail {
 
         follow(file, maxRetries, sleep(waitToOpen), sleep(waitBetweenReads))
     }
+    
+    def follow(file: File, maxRetries: Int, waitToOpen: Int, waitBetweenReads: Int): InputStream = {
+        def sleep(msec: Long) = () => Thread.sleep(msec)
+        follow(file, maxRetries, sleep(waitToOpen), sleep(waitBetweenReads))
+    }
 
     /**
      * Create InputStream reading from a log file
@@ -50,7 +55,6 @@ object Tail {
      */
     def follow(file: File, openTries: Int, openSleep: () => Unit, rereadSleep: () => Unit): InputStream = {
         import java.io.SequenceInputStream
-
         val e = new java.util.Enumeration[InputStream]() {
             def nextElement = new FollowingInputStream(file, rereadSleep)
             def hasMoreElements = testExists(file, openTries, openSleep)
